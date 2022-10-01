@@ -84,15 +84,15 @@ func Requests() *Request {
 
 // Get ,req.Get
 
-func Get(origurl string, args ...interface{}) (resp *Response, err error) {
+func Get(origurl string, dryRun bool, args ...interface{}) (resp *Response, err error) {
 	req := Requests()
 
 	// call request Get
-	resp, err = req.Get(origurl, args...)
+	resp, err = req.Get(origurl, dryRun, args...)
 	return resp, err
 }
 
-func (req *Request) Get(origurl string, args ...interface{}) (resp *Response, err error) {
+func (req *Request) Get(origurl string, dryRun bool, args ...interface{}) (resp *Response, err error) {
 
 	req.httpreq.Method = "GET"
 
@@ -135,6 +135,9 @@ func (req *Request) Get(origurl string, args ...interface{}) (resp *Response, er
 
 	req.RequestDebug()
 
+	if dryRun {
+		return nil, nil
+	}
 	res, err := req.Client.Do(req.httpreq)
 
 	if err != nil {
@@ -142,12 +145,11 @@ func (req *Request) Get(origurl string, args ...interface{}) (resp *Response, er
 		return nil, err
 	}
 
-
 	resp = &Response{}
 	resp.R = res
 	resp.req = req
 
-    resp.Content()
+	resp.Content()
 	defer res.Body.Close()
 
 	resp.ResponseDebug()
@@ -232,9 +234,8 @@ func (req *Request) SetTimeout(n time.Duration) {
 	req.Client.Timeout = time.Duration(n * time.Second)
 }
 
-
-func (req *Request) Close( ) {
-    req.httpreq.Close = true
+func (req *Request) Close() {
+	req.httpreq.Close = true
 }
 
 func (req *Request) Proxy(proxyurl string) {
@@ -250,6 +251,10 @@ func (req *Request) Proxy(proxyurl string) {
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 
+}
+
+func (req *Request) HttpRequest() *http.Request {
+	return req.httpreq
 }
 
 /**************/
@@ -274,9 +279,9 @@ func (resp *Response) Content() []byte {
 
 	var err error
 
-    if len(resp.content) > 0{
-        return resp.content
-    }
+	if len(resp.content) > 0 {
+		return resp.content
+	}
 
 	var Body = resp.R.Body
 	if resp.R.Header.Get("Content-Encoding") == "gzip" && resp.req.Header.Get("Accept-Encoding") != "" {
@@ -337,27 +342,31 @@ func (resp *Response) Cookies() (cookies []*http.Cookie) {
 
 }
 
+func (resp *Response) SetRequest(req *Request) {
+	resp.req = req
+}
+
 /**************post*************************/
 // call req.Post ,only for easy
-func Post(origurl string, args ...interface{}) (resp *Response, err error) {
+func Post(origurl string, dryRun bool, args ...interface{}) (resp *Response, err error) {
 	req := Requests()
 
 	// call request Get
-	resp, err = req.Post(origurl, args...)
+	resp, err = req.Post(origurl, dryRun, args...)
 	return resp, err
 }
 
-func PostJson(origurl string, args ...interface{}) (resp *Response, err error) {
+func PostJson(origurl string, dryRun bool, args ...interface{}) (resp *Response, err error) {
 	req := Requests()
 
 	// call request Get
-	resp, err = req.PostJson(origurl, args...)
+	resp, err = req.PostJson(origurl, dryRun, args...)
 	return resp, err
 }
 
 // POST requests
 
-func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Response, err error) {
+func (req *Request) PostJson(origurl string, dryRun bool, args ...interface{}) (resp *Response, err error) {
 
 	req.httpreq.Method = "POST"
 
@@ -401,6 +410,10 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 
 	req.RequestDebug()
 
+	if dryRun {
+		return nil, nil
+	}
+
 	res, err := req.Client.Do(req.httpreq)
 
 	// clear post  request information
@@ -413,22 +426,21 @@ func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Respons
 		return nil, err
 	}
 
-
 	resp = &Response{}
 	resp.R = res
 	resp.req = req
 
-    resp.Content()
-    defer res.Body.Close()
+	resp.Content()
+	defer res.Body.Close()
 	resp.ResponseDebug()
 	return resp, nil
 }
 
-func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, err error) {
+func (req *Request) Post(origurl string, dryRun bool, args ...interface{}) (resp *Response, err error) {
 
 	req.httpreq.Method = "POST"
 
-    //set default
+	//set default
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 	// set params ?a=b&b=c
@@ -484,6 +496,9 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 
 	req.RequestDebug()
 
+	if dryRun {
+		return nil, nil
+	}
 	res, err := req.Client.Do(req.httpreq)
 
 	// clear post param
@@ -496,13 +511,12 @@ func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, e
 		return nil, err
 	}
 
-
 	resp = &Response{}
 	resp.R = res
 	resp.req = req
 
-    resp.Content()
-    defer res.Body.Close()
+	resp.Content()
+	defer res.Body.Close()
 
 	resp.ResponseDebug()
 	return resp, nil
