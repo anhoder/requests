@@ -53,6 +53,7 @@ type Header map[string]string
 type Params map[string]string
 type Datas map[string]string // for post form
 type Files map[string]string // name ,filename
+type DryRun bool
 
 // {username,password}
 type Auth []string
@@ -84,15 +85,15 @@ func Requests() *Request {
 
 // Get ,req.Get
 
-func Get(origurl string, dryRun bool, args ...interface{}) (resp *Response, err error) {
+func Get(origurl string, args ...interface{}) (resp *Response, err error) {
 	req := Requests()
 
 	// call request Get
-	resp, err = req.Get(origurl, dryRun, args...)
+	resp, err = req.Get(origurl, args...)
 	return resp, err
 }
 
-func (req *Request) Get(origurl string, dryRun bool, args ...interface{}) (resp *Response, err error) {
+func (req *Request) Get(origurl string, args ...interface{}) (resp *Response, err error) {
 
 	req.httpreq.Method = "GET"
 
@@ -104,6 +105,7 @@ func (req *Request) Get(origurl string, dryRun bool, args ...interface{}) (resp 
 	//Client.Do can copy cookie from client.Jar to req.Header
 	delete(req.httpreq.Header, "Cookie")
 
+	var dryRun DryRun
 	for _, arg := range args {
 		switch a := arg.(type) {
 		// arg is Header , set to request header
@@ -119,6 +121,8 @@ func (req *Request) Get(origurl string, dryRun bool, args ...interface{}) (resp 
 		case Auth:
 			// a{username,password}
 			req.httpreq.SetBasicAuth(a[0], a[1])
+		case DryRun:
+			dryRun = a
 		}
 	}
 
@@ -348,25 +352,25 @@ func (resp *Response) SetRequest(req *Request) {
 
 /**************post*************************/
 // call req.Post ,only for easy
-func Post(origurl string, dryRun bool, args ...interface{}) (resp *Response, err error) {
+func Post(origurl string, args ...interface{}) (resp *Response, err error) {
 	req := Requests()
 
 	// call request Get
-	resp, err = req.Post(origurl, dryRun, args...)
+	resp, err = req.Post(origurl, args...)
 	return resp, err
 }
 
-func PostJson(origurl string, dryRun bool, args ...interface{}) (resp *Response, err error) {
+func PostJson(origurl string, args ...interface{}) (resp *Response, err error) {
 	req := Requests()
 
 	// call request Get
-	resp, err = req.PostJson(origurl, dryRun, args...)
+	resp, err = req.PostJson(origurl, args...)
 	return resp, err
 }
 
 // POST requests
 
-func (req *Request) PostJson(origurl string, dryRun bool, args ...interface{}) (resp *Response, err error) {
+func (req *Request) PostJson(origurl string, args ...interface{}) (resp *Response, err error) {
 
 	req.httpreq.Method = "POST"
 
@@ -376,6 +380,7 @@ func (req *Request) PostJson(origurl string, dryRun bool, args ...interface{}) (
 	//Client.Do can copy cookie from client.Jar to req.Header
 	delete(req.httpreq.Header, "Cookie")
 
+	var dryRun DryRun
 	for _, arg := range args {
 		switch a := arg.(type) {
 		// arg is Header , set to request header
@@ -389,6 +394,8 @@ func (req *Request) PostJson(origurl string, dryRun bool, args ...interface{}) (
 		case Auth:
 			// a{username,password}
 			req.httpreq.SetBasicAuth(a[0], a[1])
+		case DryRun:
+			dryRun = a
 		default:
 			b := new(bytes.Buffer)
 			err = json.NewEncoder(b).Encode(a)
@@ -436,7 +443,7 @@ func (req *Request) PostJson(origurl string, dryRun bool, args ...interface{}) (
 	return resp, nil
 }
 
-func (req *Request) Post(origurl string, dryRun bool, args ...interface{}) (resp *Response, err error) {
+func (req *Request) Post(origurl string, args ...interface{}) (resp *Response, err error) {
 
 	req.httpreq.Method = "POST"
 
@@ -453,6 +460,7 @@ func (req *Request) Post(origurl string, dryRun bool, args ...interface{}) (resp
 	//Client.Do can copy cookie from client.Jar to req.Header
 	delete(req.httpreq.Header, "Cookie")
 
+	var dryRun DryRun
 	for _, arg := range args {
 		switch a := arg.(type) {
 		// arg is Header , set to request header
@@ -473,6 +481,8 @@ func (req *Request) Post(origurl string, dryRun bool, args ...interface{}) (resp
 		case Auth:
 			// a{username,password}
 			req.httpreq.SetBasicAuth(a[0], a[1])
+		case DryRun:
+			dryRun = a
 		}
 	}
 

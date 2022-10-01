@@ -1,4 +1,4 @@
-module github.com/asmcos/requests
+module github.com/anhoder/requests
 
 go 1.13
 
