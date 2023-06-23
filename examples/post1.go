@@ -1,6 +1,6 @@
 package main
 
-import "github.com/anhoder/requests"
+import "github.com/go-musicfox/requests"
 
 func main() {
 

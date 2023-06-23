@@ -1,4 +1,4 @@
-module github.com/anhoder/requests
+module github.com/go-musicfox/requests
 
 go 1.13
 

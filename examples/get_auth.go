@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/anhoder/requests"
+	"github.com/go-musicfox/requests"
 )
 
 func main() {
