@@ -135,7 +135,7 @@ func (req *Request) Get(origurl string, args ...interface{}) (resp *Response, er
 	}
 	req.httpreq.URL = URL
 
-	req.ClientSetCookies()
+	//req.ClientSetCookies()
 
 	req.RequestDebug()
 
